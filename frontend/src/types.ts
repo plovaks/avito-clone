@@ -22,7 +22,6 @@ export interface AutoRawItem extends BaseRawItem {
   model: string;
   year: number;
   mileage?: number; 
-  price: number;
 }
 
 export interface ServiceRawItem extends BaseRawItem {
