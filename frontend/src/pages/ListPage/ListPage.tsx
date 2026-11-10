@@ -17,7 +17,10 @@ const ListPage = observer(() => {
         <div className="list-page">
             <h1 className="list-page__header">Мои объявления</h1>
             <div className="list-content-wrapper">
-                <button className="addCard-btn">Разместить объявление</button>
+                <Link to='/form'>
+                    <button className="addCard-btn">Разместить объявление</button>
+                </Link>
+                
                 <div className="list-cards">
                     {itemsStore.items.map((item) =>  (
                         <div key={item.id} className="list-card">
@@ -27,7 +30,7 @@ const ListPage = observer(() => {
                                 <p>{item.location}</p>
                                 {item.price !==null && <p>{item.price}</p>}
                             </div>
-                            <Link to={`item/${item.id}`}>
+                            <Link to={`/item/${item.id}`}>
                                 <button className="openCard-btn">Открыть</button>    
                             </Link>
                         </div>

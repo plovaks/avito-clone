@@ -70,6 +70,8 @@ class ItemsStore {
         }
     }
 
+    
+
     // отправка нового объявления на сервер
     async postItem(adToPost: RawItem) {
         const res = await fetch('/items', {
