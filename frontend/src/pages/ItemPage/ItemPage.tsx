@@ -3,77 +3,59 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import placeholder from "../../assets/placeholder-image.png"
 import type { RawItem } from '../../types';
+import {observer} from "mobx-react-lite"
+import { itemsStore } from '../../stores/items.store';
 
-function ItemPage(){
+const  ItemPage = observer(() => {
     const {id} = useParams();
-    const [item, setItem] = useState<RawItem>();
-    const [itemLoading, setIsItemLoading] = useState<boolean>(true);
-    const [itemError, setItemError] = useState<null | string>(null);
 
     useEffect(() => {
-        const loadItem = async () => {
-        setIsItemLoading(true);
-        setItemError(null);
-
-        try {
-            const res = await fetch(`/items/${id}`);
-            if(!res.ok){
-                throw new Error('ошибка обращения к url объявления')
-            }
-            const data = await res.json();
-            setItem(data);
-
-        } catch (error) {
-            setItemError(JSON.stringify(error))
-            throw new Error(`ошибка получения информации об объявлении: ${error}`);
-            
-        }finally{
-            setIsItemLoading(false);
-        }
-
-        }
-        loadItem();
-    }, []);
+        if (!id) return;
+        itemsStore.fetchItem(id)
+    }, [id]);
 
     
     
 
-    if (itemLoading) return <p>Загрузка объявления...</p>
-    if (itemError) return <p>Ошибка загрузки объявления {itemError}</p>
+    if (itemsStore.itemLoading) return <p>Загрузка объявления...</p>
+    if (itemsStore.itemError) return <p>Ошибка загрузки объявления {itemsStore.itemError}</p>
 
     return(
         <div className='item'>
             <div className="item__mainInfo">
-                <h2 style={{fontSize:'3rem', marginBottom:'3rem'}}>{item?.name}</h2>
-                <img src={`${item?.image}` && placeholder} alt="" className='item__image'/>
+                <h2 style={{fontSize:'3rem', marginBottom:'3rem'}}>{itemsStore.currentItem?.name}</h2>
+                <img src={`${itemsStore.currentItem?.image}` && placeholder} alt="" className='item__image'/>
             </div>
             <div>
                 <h3 style={{fontSize:'2rem'}}>Характеристики</h3>
 
-                {item?.type === 'Авто' && (
+                {itemsStore.currentItem?.type === 'Авто' && (
                     <div className="item__characteristics">
-                        <p>Марка автомобиля: <span>{item.brand}</span></p>
-                        <p>Год выпуска автомобиля: <span>{item.year}</span></p>
-                        <p>Модель автомобиля: <span>{item.model}</span></p>
-                        <p>Пробег: <span>{item.mileage}</span> км</p>
+                        <p>Марка автомобиля: <span>{itemsStore.currentItem.brand}</span></p>
+                        <p>Год выпуска автомобиля: <span>{itemsStore.currentItem.year}</span></p>
+                        <p>Модель автомобиля: <span>{itemsStore.currentItem.model}</span></p>
+                        <p>Пробег: <span>{itemsStore.currentItem.mileage}</span> км</p>
                     </div>
                 )}
 
-                {item?.type === 'Недвижимость' && (
+                {itemsStore.currentItem?.type === 'Недвижимость' && (
                     <div className="item__characteristics">
-                        <p>Тип: <span>{item.propertyType}</span></p>
-                        <p>Площадь: <span>{item.area} м <sup>2</sup></span></p>
-                        <p>Количество комнат: <span>{item.rooms}</span></p>
-                        <p>Цена: <span>{item.price}</span> км</p>
+                        <p>Тип: <span>{itemsStore.currentItem.propertyType}</span></p>
+                        <p>Площадь: <span>{itemsStore.currentItem.area} м <sup>2</sup></span></p>
+                        <p>Количество комнат: <span>{itemsStore.currentItem.rooms}</span></p>
+                        <p>Цена: <span>{itemsStore.currentItem.price}</span></p>
                     </div>
                 )}
 
-                {item?.type === 'Услуги' && (
+                {itemsStore.currentItem?.type === 'Услуги' && (
                     <div className="item__characteristics">
-                        <p>Тип услуги: <span>{item.serviceType}</span></p>
-                        <p>Опыт работы: <span>{item.experience}</span></p>
-                        <p>Стоимость: <span>{item.cost}</span></p>
-                        <p>График работы: <span>{item.workSchedule}</span> км</p>
+                        <p>Тип услуги: <span>{itemsStore.currentItem.serviceType}</span></p>
+                        <p>Опыт работы: <span>{itemsStore.currentItem.experience}</span></p>
+                        <p>Стоимость: <span>{itemsStore.currentItem.cost}</span></p>
+                        {itemsStore.currentItem.workSchedule && (
+                            <p>График работы: <span>{itemsStore.currentItem.workSchedule}</span></p>
+                        )}
+                        
                     </div>
                 )}
                
@@ -89,6 +71,7 @@ function ItemPage(){
             
         </div>
     )
-}
+})
+
 
 export default ItemPage;

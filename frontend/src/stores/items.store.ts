@@ -2,6 +2,7 @@ import { makeAutoObservable, runInAction } from "mobx"
 import type { Listing, RawItem } from '../types';
 import placeholderImg from "../assets/placeholder-image.png"
 
+
 export const transformListings = (rawItems: RawItem[]): Listing[] => {
     return rawItems.map((item) => {
         const details: string[] = [];
@@ -42,6 +43,11 @@ class ItemsStore {
     items: Listing[] = [];
     loading: boolean = false;
     error: string | null = null;
+    currentItem: RawItem | null = null;
+    itemLoading:boolean = false;
+    itemError: string | null = null;
+
+
 
     constructor() {
         makeAutoObservable(this);
@@ -70,6 +76,31 @@ class ItemsStore {
         }
     }
 
+    // получение объявления с сервера
+    async fetchItem(id : string){
+        this.itemLoading = true;
+        this.itemError = null;
+
+        try {
+            const res = await fetch(`/items/${id}`);
+            if(!res.ok){
+                throw new Error('ошибка обращения к url объявления')
+            }
+            const data: RawItem = await res.json();
+            runInAction(() => {
+                this.currentItem = data;
+            })
+            
+        } catch (error:any) {
+            runInAction(() => { this.itemError = error.message })
+            throw new Error(`ошибка получения информации об объявлении: ${error}`);
+        }finally{
+            runInAction(() => {
+                this.itemLoading = false;
+            })
+        }
+    }
+
     
 
     // отправка нового объявления на сервер
@@ -85,6 +116,22 @@ class ItemsStore {
             throw new Error(body?.error || 'не удалось создать новое объявление');
         }
     }
+
+    // обновление объявления
+    async updateItem(id:string, data:RawItem){
+        const res = await fetch(`/items/${id}`, {
+            method: 'PUT',
+            headers:{"Content-Type": "application/json"},
+            body: JSON.stringify(data)
+        })
+
+        if (!res.ok) {
+            const body = await res.json().catch(() => null);
+            throw new Error(body?.error || 'не удалось обновить объявление');
+        }
+
+    }
+
 }
 
 export const itemsStore = new ItemsStore();
