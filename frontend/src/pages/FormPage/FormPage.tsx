@@ -1,23 +1,55 @@
-import { useState } from 'react';
-import { Form as AntdForm, Input, InputNumber, Select, Button, message } from 'antd';
+import { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { Form as AntdForm, Input, InputNumber, Select, Button, message, Alert } from 'antd';
 import { itemsStore } from '../../stores/items.store';
+import { observer } from 'mobx-react-lite';
 import type { ItemType, RawItem } from '../../types';
 import './FormPage.css';
 
-function FormPage() {
+const  FormPage = observer (() => {
   const [form] = AntdForm.useForm();
   const [selectedType, setSelectedType] = useState<ItemType | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get('id');
+  const isEditMode = Boolean(id);
+
+  // загрузка данных
+  useEffect(() => {
+
+    if (id) {
+      itemsStore.fetchItem(id);
+    }else{
+      itemsStore.clearCurrentItem();
+      form.resetFields();
+      setSelectedType(undefined)
+    }
+  }, [id])
+
+  // заполнение формы
+  useEffect(() => {
+    const item = itemsStore.currentItem;
+    if (!id || !item || String(item.id) !== id) return;
+    setSelectedType(item.type);
+    form.setFieldsValue(item);
+  }, [id, itemsStore.currentItem]);
 
   const onFinish = async (values: any) => {
     setIsSubmitting(true);
     try {
-      await itemsStore.postItem(values as RawItem);
-      message.success('Объявление успешно создано!');
-      form.resetFields();
-      setSelectedType(undefined);
+      if (isEditMode && id) {
+        await itemsStore.updateItem(id, values as RawItem);
+        message.success('объявление обновлено!');
+        navigate(`/item/${id}`);
+      } else {
+        await itemsStore.postItem(values as RawItem);
+        message.success('объявление успешно создано!');
+        form.resetFields();
+        setSelectedType(undefined);
+      }
     } catch (err) {
-      message.error('Не удалось сохранить объявление. Проверьте подключение к серверу.');
+      message.error('не удалось сохранить объявление');
     } finally {
       setIsSubmitting(false);
     }
@@ -25,13 +57,13 @@ function FormPage() {
 
   return (
     <div className='form-page'>
-      <h1 >Создать объявление</h1>
+      <h1>{isEditMode ? 'Редактировать объявление' : 'Создать объявление'}</h1>
       
+  
       <AntdForm 
         form={form} 
         layout="vertical" 
         onFinish={onFinish} 
-        preserve={false}
         style={{ background: '#fff', padding: 24, borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
       >
         <AntdForm.Item name="name" label="Название" rules={[{ required: true, message: 'Введите название' }]}>
@@ -51,7 +83,7 @@ function FormPage() {
         </AntdForm.Item>
 
         <AntdForm.Item name="type" label="Категория" rules={[{ required: true, message: 'Выберите категорию' }]}>
-          <Select placeholder="Выберите категорию" onChange={(value: ItemType) => setSelectedType(value)}>
+          <Select placeholder="Выберите категорию" disabled={isEditMode} onChange={(value: ItemType) => setSelectedType(value) }>
             <Select.Option value="Недвижимость">Недвижимость</Select.Option>
             <Select.Option value="Авто">Автомобили</Select.Option>
             <Select.Option value="Услуги">Услуги</Select.Option>
@@ -113,11 +145,12 @@ function FormPage() {
         )}
 
         <Button type="primary" htmlType="submit" loading={isSubmitting} block size="large">
-          Опубликовать объявление
+          {isEditMode ? 'Сохранить изменения' : 'Опубликовать объявление'}
         </Button>
       </AntdForm>
     </div>
   );
 }
+) 
 
 export default FormPage;

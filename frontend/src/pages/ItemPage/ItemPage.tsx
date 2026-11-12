@@ -1,13 +1,15 @@
 import './ItemPage.css'
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import placeholder from "../../assets/placeholder-image.png"
-import type { RawItem } from '../../types';
 import {observer} from "mobx-react-lite"
 import { itemsStore } from '../../stores/items.store';
+import { useNavigate } from 'react-router-dom';
 
 const  ItemPage = observer(() => {
     const {id} = useParams();
+    const navigate = useNavigate();
+
 
     useEffect(() => {
         if (!id) return;
@@ -24,7 +26,7 @@ const  ItemPage = observer(() => {
         <div className='item'>
             <div className="item__mainInfo">
                 <h2 style={{fontSize:'3rem', marginBottom:'3rem'}}>{itemsStore.currentItem?.name}</h2>
-                <img src={`${itemsStore.currentItem?.image}` && placeholder} alt="" className='item__image'/>
+                <img src={`${itemsStore.currentItem?.image || placeholder}` && placeholder} alt="" className='item__image'/>
             </div>
             <div>
                 <h3 style={{fontSize:'2rem'}}>Характеристики</h3>
@@ -61,7 +63,7 @@ const  ItemPage = observer(() => {
                
                     <button 
                         className="item__button-edit"
-                        
+                        onClick={() => navigate(`/form?id=${id}`)}
                     >
                         Редактировать
                     </button>

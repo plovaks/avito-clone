@@ -80,6 +80,7 @@ class ItemsStore {
     async fetchItem(id : string){
         this.itemLoading = true;
         this.itemError = null;
+        this.currentItem = null;
 
         try {
             const res = await fetch(`/items/${id}`);
@@ -93,7 +94,7 @@ class ItemsStore {
             
         } catch (error:any) {
             runInAction(() => { this.itemError = error.message })
-            throw new Error(`ошибка получения информации об объявлении: ${error}`);
+            console.error('ошибка получения информации об объявлении', error);
         }finally{
             runInAction(() => {
                 this.itemLoading = false;
@@ -115,6 +116,7 @@ class ItemsStore {
             const body = await res.json().catch(() => null);
             throw new Error(body?.error || 'не удалось создать новое объявление');
         }
+        await this.fetchItems();
     }
 
     // обновление объявления
@@ -129,7 +131,13 @@ class ItemsStore {
             const body = await res.json().catch(() => null);
             throw new Error(body?.error || 'не удалось обновить объявление');
         }
+        await this.fetchItems();
 
+    }
+
+    clearCurrentItem() {
+        this.currentItem = null;
+        this.itemError = null;
     }
 
 }
