@@ -1,14 +1,24 @@
 
 import {observer} from "mobx-react-lite"
-import { useEffect } from "react"
+import { useState, useEffect } from "react"
 import { itemsStore } from "../../stores/items.store"
 import { Link } from "react-router-dom"
+import { Pagination } from "antd"
 import './ListPage.css'
 
 const ListPage = observer(() => {
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(5);
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    
     useEffect(() => {
         itemsStore.fetchItems();
     }, []);
+
+    const currentItems = itemsStore.items.slice(startIndex, endIndex);
+
+   
 
     if (itemsStore.loading) return <p>Загрузка списка объявлений</p>
     if (itemsStore.error) return <p>Ошибка: {itemsStore.error}</p>
@@ -22,19 +32,34 @@ const ListPage = observer(() => {
                 </Link>
                 
                 <div className="list-cards">
-                    {itemsStore.items.map((item) =>  (
+                    {currentItems.map((item) =>  (
                         <div key={item.id} className="list-card">
-                            <img src={item.imageSrc} alt={item.title} width={160} height={120} />
+                            <img src={item.imageSrc} alt={item.title} width={160} height={120} style={{borderRadius: '0.5rem'}}/>
                             <div className="card-info">
-                                <h3>{item.title}</h3>
-                                <p>{item.location}</p>
-                                {item.price !==null && <p>{item.price}</p>}
+                                <p className="card__type">{item.type}</p>
+                                <p>{item.title}</p>
+                                {item.price !==null && <h3>{item.price} ₽</h3>}
+                                <p className="card__location">{item.location}</p>
+                                
                             </div>
                             <Link to={`/item/${item.id}`}>
                                 <button className="openCard-btn">Открыть</button>    
                             </Link>
                         </div>
                     ))}
+                </div>
+
+                <div className="pagination">
+                    <Pagination
+                        align="start"
+                        defaultCurrent={currentPage}
+                        total={itemsStore.items.length}
+                        pageSize={pageSize}
+                        onChange={(page, size) => {
+                            setCurrentPage(page);
+                            setPageSize(size)
+                        }}
+                    />
                 </div>
             </div>
             

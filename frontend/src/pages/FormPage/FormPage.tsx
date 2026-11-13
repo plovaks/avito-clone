@@ -41,12 +41,13 @@ const  FormPage = observer (() => {
       if (isEditMode && id) {
         await itemsStore.updateItem(id, values as RawItem);
         message.success('объявление обновлено!');
-        navigate(`/item/${id}`);
+        navigate(`/list`);
       } else {
         await itemsStore.postItem(values as RawItem);
         message.success('объявление успешно создано!');
         form.resetFields();
         setSelectedType(undefined);
+        navigate(`/list`);
       }
     } catch (err) {
       message.error('не удалось сохранить объявление');

@@ -1,12 +1,27 @@
-.item{
-    padding-block: 2rem;
-    display: flex;
-    gap:1rem;
-    /* justify-content: space-between; */
-    justify-content: center;
-    align-items: center;
-    /* background-color: aliceblue; */
-    /* padding: 1rem 2rem; */
+
+.item {
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr; 
+    gap: 2rem; 
+    align-items: start; 
+    max-width: 80%;
+    margin: 0 auto;
+}
+
+
+.item__mainInfo {
+    grid-column: 1 / 2;
+}
+
+
+.item__details {
+    grid-column: 2 / 3;
+}
+
+.card__desc {
+    grid-column: 1 / -1; 
+    margin-top: 1rem;
 }
 
 .item__image{

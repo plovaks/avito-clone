@@ -28,8 +28,13 @@ const  ItemPage = observer(() => {
                 <h2 style={{fontSize:'3rem', marginBottom:'3rem'}}>{itemsStore.currentItem?.name}</h2>
                 <img src={`${itemsStore.currentItem?.image || placeholder}` && placeholder} alt="" className='item__image'/>
             </div>
-            <div>
-                <h3 style={{fontSize:'2rem'}}>Характеристики</h3>
+            <div >
+
+               
+                <h3 style={{fontSize:'2rem', marginBottom:'3rem'}}>
+                    {itemsStore.currentItem?.type === 'Недвижимость' && itemsStore.currentItem.price || itemsStore.currentItem?.type === 'Услуги' && itemsStore.currentItem.cost} ₽
+                </h3>
+                <h3 style={{fontSize:'1.5rem'}}>Характеристики</h3>
 
                 {itemsStore.currentItem?.type === 'Авто' && (
                     <div className="item__characteristics">
@@ -70,6 +75,12 @@ const  ItemPage = observer(() => {
                 
                 
             </div>
+             {itemsStore.currentItem?.description && (
+                    <div className='card__desc'>
+                        <h3 style={{fontSize:'2rem'}}>Описание</h3>
+                        <p>{itemsStore.currentItem.description}</p>
+                    </div>
+            )}
             
         </div>
     )
