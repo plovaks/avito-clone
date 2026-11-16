@@ -3,8 +3,10 @@ import {observer} from "mobx-react-lite"
 import { useState, useEffect } from "react"
 import { itemsStore } from "../../stores/items.store"
 import { Link } from "react-router-dom"
-import { Pagination } from "antd"
+import { Pagination, Input } from "antd"
 import './ListPage.css'
+
+const {Search} = Input;
 
 const ListPage = observer(() => {
     const [currentPage, setCurrentPage] = useState(1);
@@ -16,7 +18,16 @@ const ListPage = observer(() => {
         itemsStore.fetchItems();
     }, []);
 
-    const currentItems = itemsStore.items.slice(startIndex, endIndex);
+    const handleSearch = (value:string) => {
+        itemsStore.setSearchQueryString(value);
+        setCurrentPage(1);
+    }
+
+    const filteredItems = itemsStore.filteredItems;
+
+    const currentItems = filteredItems.slice(startIndex, endIndex);
+
+    
 
    
 
@@ -25,7 +36,17 @@ const ListPage = observer(() => {
 
     return (
         <div className="list-page">
+            
             <h1 className="list-page__header">Мои объявления</h1>
+            {itemsStore.items.length > 0 && (
+                <Search 
+                value={itemsStore.searchQuery}
+                placeholder="название объявления" 
+                allowClear style={{maxWidth:'25rem'}} 
+                onSearch={handleSearch}
+                onChange={(e) => handleSearch(e.target.value)}
+            />
+            )}
             <div className="list-content-wrapper">
                 <Link to='/form'>
                     <button className="addCard-btn">Разместить объявление</button>
@@ -34,7 +55,7 @@ const ListPage = observer(() => {
                 <div className="list-cards">
                     {currentItems.map((item) =>  (
                         <div key={item.id} className="list-card">
-                            <img src={item.imageSrc} alt={item.title} width={160} height={120} style={{borderRadius: '0.5rem'}}/>
+                            <img src={item.imageSrc} alt={item.title} width={160} height={120} style={{borderRadius: '0.5rem', objectFit:'cover'}}/>
                             <div className="card-info">
                                 <p className="card__type">{item.type}</p>
                                 <p>{item.title}</p>
@@ -49,18 +70,20 @@ const ListPage = observer(() => {
                     ))}
                 </div>
 
-                <div className="pagination">
-                    <Pagination
-                        align="start"
-                        defaultCurrent={currentPage}
-                        total={itemsStore.items.length}
-                        pageSize={pageSize}
-                        onChange={(page, size) => {
-                            setCurrentPage(page);
-                            setPageSize(size)
-                        }}
-                    />
-                </div>
+                {filteredItems.length > 0 && (
+                    <div className="pagination">
+                        <Pagination
+                            align="start"
+                            defaultCurrent={currentPage}
+                            total={itemsStore.items.length}
+                            pageSize={pageSize}
+                            onChange={(page, size) => {
+                                setCurrentPage(page);
+                                setPageSize(size)
+                            }}
+                        />
+                    </div>
+                )}
             </div>
             
         </div>

@@ -46,14 +46,33 @@ class ItemsStore {
     currentItem: RawItem | null = null;
     itemLoading:boolean = false;
     itemError: string | null = null;
+    searchQuery: string = '';
 
-
+    
 
     constructor() {
         makeAutoObservable(this);
     }
 
+    setSearchQueryString(query:string){
+        this.searchQuery = query;
+    }
+
+    get filteredItems():Listing[] {
+        const pureQuery: string = this.searchQuery.toLocaleLowerCase().trim();
+
+        if (!pureQuery){
+            return this.items
+        }
+
+        return this.items.filter((item) => 
+            item.title.toLocaleLowerCase().includes(pureQuery)
+        )
+    }
+
     // получение объявлений с сервера
+    
+    
     async fetchItems() {
         this.loading = true;
         this.error = null;
@@ -139,6 +158,8 @@ class ItemsStore {
         this.currentItem = null;
         this.itemError = null;
     }
+
+
 
 }
 
