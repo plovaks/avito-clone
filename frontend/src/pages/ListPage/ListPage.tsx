@@ -3,7 +3,7 @@ import {observer} from "mobx-react-lite"
 import { useState, useEffect } from "react"
 import { itemsStore } from "../../stores/items.store"
 import { Link } from "react-router-dom"
-import { Pagination, Input } from "antd"
+import { Pagination, Input, Select } from "antd"
 import './ListPage.css'
 
 const {Search} = Input;
@@ -20,6 +20,11 @@ const ListPage = observer(() => {
 
     const handleSearch = (value:string) => {
         itemsStore.setSearchQueryString(value);
+        setCurrentPage(1);
+    }
+
+    const handleChangeCategory = (category:string) => {
+        itemsStore.setCategory(category);
         setCurrentPage(1);
     }
 
@@ -48,9 +53,23 @@ const ListPage = observer(() => {
             />
             )}
             <div className="list-content-wrapper">
-                <Link to='/form'>
-                    <button className="addCard-btn">Разместить объявление</button>
-                </Link>
+                <div className="list__actions">
+                    <Select
+                        className="list__actions--filters"
+                        defaultValue={itemsStore.category}
+                        onChange={value => handleChangeCategory(value)}
+                        options={[
+                            { value: 'auto', label: 'Авто' },
+                            { value: 'estate', label: 'Недвижимость' },
+                            { value: 'service', label: 'Услуги' },
+                            { value: 'all', label: 'Все'}
+                        ]}
+                    />
+                    <Link to='/form'>
+                        <button className="addCard-btn">Разместить объявление</button>
+                    </Link>
+                </div>
+                
                 
                 <div className="list-cards">
                     {currentItems.map((item) =>  (
@@ -74,8 +93,8 @@ const ListPage = observer(() => {
                     <div className="pagination">
                         <Pagination
                             align="start"
-                            defaultCurrent={currentPage}
-                            total={itemsStore.items.length}
+                            current={currentPage}
+                            total={filteredItems.length}
                             pageSize={pageSize}
                             onChange={(page, size) => {
                                 setCurrentPage(page);

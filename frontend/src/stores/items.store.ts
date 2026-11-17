@@ -47,6 +47,7 @@ class ItemsStore {
     itemLoading:boolean = false;
     itemError: string | null = null;
     searchQuery: string = '';
+    category:string= 'all';
 
     
 
@@ -58,15 +59,29 @@ class ItemsStore {
         this.searchQuery = query;
     }
 
+    setCategory(category:string){
+        this.category = category;
+    }
+
     get filteredItems():Listing[] {
         const pureQuery: string = this.searchQuery.toLocaleLowerCase().trim();
 
-        if (!pureQuery){
-            return this.items
-        }
+
+        const categoryMap: Record<string, string> = {
+            auto: 'Авто',
+            estate: 'Недвижимость',
+            service: 'Услуги',
+        };
 
         return this.items.filter((item) => 
-            item.title.toLocaleLowerCase().includes(pureQuery)
+            {
+               const matchesCategory = this.category === 'all' || item.type === categoryMap[this.category];
+
+                const matchesSearch = !pureQuery || item.title.toLocaleLowerCase().includes(pureQuery);
+
+                return matchesCategory && matchesSearch;
+            }
+            
         )
     }
 

@@ -7,6 +7,18 @@
     
 }
 
+.list__actions{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap:3rem;
+}
+
+.list__actions--filters{
+    width:30%;
+}
+
 .list-page__header{
     margin: 1.5rem auto;
 }

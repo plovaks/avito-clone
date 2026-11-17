@@ -32,7 +32,7 @@ const  ItemPage = observer(() => {
 
                
                 <h3 style={{fontSize:'2rem', marginBottom:'3rem'}}>
-                    {itemsStore.currentItem?.type === 'Недвижимость' && itemsStore.currentItem.price || itemsStore.currentItem?.type === 'Услуги' && itemsStore.currentItem.cost} ₽
+                    {((itemsStore.currentItem?.type === 'Недвижимость' && itemsStore.currentItem.price ) && <span>{itemsStore.currentItem.price} ₽</span> ) || (itemsStore.currentItem?.type === 'Услуги' && itemsStore.currentItem.cost && ('₽') && <span>{itemsStore.currentItem.cost} ₽</span>) } 
                 </h3>
                 <h3 style={{fontSize:'1.5rem'}}>Характеристики</h3>
 
