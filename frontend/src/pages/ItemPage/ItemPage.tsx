@@ -17,7 +17,8 @@ const  ItemPage = observer(() => {
     }, [id]);
 
     
-    
+    const item = itemsStore.currentItem;
+    const price = item?.type === 'Недвижимость' ? item.price : item?.type === 'Услуги' ? item.cost : null;
 
     if (itemsStore.itemLoading) return <p>Загрузка объявления...</p>
     if (itemsStore.itemError) return <p>Ошибка загрузки объявления {itemsStore.itemError}</p>
@@ -26,13 +27,13 @@ const  ItemPage = observer(() => {
         <div className='item'>
             <div className="item__mainInfo">
                 <h2 style={{fontSize:'3rem', marginBottom:'3rem'}}>{itemsStore.currentItem?.name}</h2>
-                <img src={`${itemsStore.currentItem?.image || placeholder}` && placeholder} alt="" className='item__image'/>
+                <img src={itemsStore.currentItem?.image || placeholder} alt="" className='item__image'/>
             </div>
             <div >
 
                
                 <h3 style={{fontSize:'2rem', marginBottom:'3rem'}}>
-                    {((itemsStore.currentItem?.type === 'Недвижимость' && itemsStore.currentItem.price ) && <span>{itemsStore.currentItem.price} ₽</span> ) || (itemsStore.currentItem?.type === 'Услуги' && itemsStore.currentItem.cost && ('₽') && <span>{itemsStore.currentItem.cost} ₽</span>) } 
+                    {price !== null && <span>{price} ₽</span>}
                 </h3>
                 <h3 style={{fontSize:'1.5rem'}}>Характеристики</h3>
 
